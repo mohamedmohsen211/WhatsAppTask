@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WhatsAppTask.DAL.Entities;
 
 namespace WhatsAppTask.DAL.DbContext
 {
@@ -8,6 +9,6 @@ namespace WhatsAppTask.DAL.DbContext
             : base(options)
         {
         }
-
+        public DbSet<User> Users { get; set; }
     }
 }
