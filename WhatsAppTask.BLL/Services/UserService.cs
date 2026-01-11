@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WhatsAppTask.BLL.Interfaces;
+﻿using WhatsAppTask.BLL.Interfaces;
 using WhatsAppTask.DAL.DbContext;
 using WhatsAppTask.DAL.Entities;
 using System.Security.Cryptography;
@@ -33,6 +32,32 @@ namespace WhatsAppTask.BLL.Services
             using var sha256 = SHA256.Create();
             var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
             return Convert.ToBase64String(bytes);
+        }
+        public User CreateUser(string username, string email, string password, string role)
+        {
+            username = username.ToLower();
+            email = email.ToLower();
+
+            if (_context.Users.Any(u => u.Username == username))
+                throw new Exception("Username already exists");
+
+            if (_context.Users.Any(u => u.Email == email))
+                throw new Exception("Email already exists");
+
+            var user = new User
+            {
+                Username = username,
+                Email = email,
+                PasswordHash = HashPassword(password),
+                Role = role,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            return user;
         }
     }
 }

@@ -31,5 +31,31 @@ namespace WhatsAppTask.Api.Controllers
                 user.Role
             });
         }
+        [HttpPost("register")]
+        public IActionResult Register(CreateUserRequestDto request)
+        {
+            try
+            {
+                var user = _userService.CreateUser(
+                    request.Username,
+                    request.Email,
+                    request.Password,
+                    request.Role
+                );
+
+                return Ok(new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Email,
+                    user.Role
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
