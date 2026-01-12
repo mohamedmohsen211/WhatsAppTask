@@ -34,6 +34,8 @@ namespace WhatsAppTask.Api.Controllers
                 request.Name,
                 request.ImageUrl
             );
+            if (contact == null)
+                return BadRequest("Contact already exists");
 
             return Ok(new ContactResponseDto
             {
@@ -62,5 +64,24 @@ namespace WhatsAppTask.Api.Controllers
 
             return Ok(contacts);
         }
+        [HttpGet("search")]
+        public IActionResult Search([FromQuery] string q)
+        {
+            var userId = GetUserId();
+
+            var results = _contactService.SearchContacts(userId, q);
+
+            if (!results.Any())
+                return NotFound("Not Found");
+
+            return Ok(results.Select(c => new ContactResponseDto
+            {
+                Id = c.Id,
+                PhoneNumber = c.PhoneNumber,
+                Name = c.Name,
+                ImageUrl = c.ImageUrl
+            }));
+        }
+
     }
 }

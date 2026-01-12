@@ -16,11 +16,10 @@ namespace WhatsAppTask.BLL.Services
         public Contact CreateContact(int userId, string phoneNumber, string? name, string? imageUrl)
         {
             var exists = _context.Contacts.Any(c =>
-                c.UserId == userId &&
                 c.PhoneNumber == phoneNumber);
 
             if (exists)
-                throw new Exception("Contact already exists");
+                return null;
 
             var contact = new Contact
             {
@@ -44,5 +43,21 @@ namespace WhatsAppTask.BLL.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
+        public List<Contact> SearchContacts(int userId, string query)
+        {
+            query = query.ToLower();
+
+            return _context.Contacts
+                .Where(c =>
+                    c.UserId == userId &&
+                    (
+                        c.PhoneNumber.Contains(query) ||
+                        (c.Name != null && c.Name.ToLower().Contains(query))
+                    )
+                )
+                .OrderByDescending(c => c.CreatedAt)
+                .ToList();
+        }
+
     }
 }

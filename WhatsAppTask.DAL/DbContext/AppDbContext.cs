@@ -24,6 +24,11 @@ namespace WhatsAppTask.DAL.DbContext
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Contact>()
+                .HasIndex(c => new {c.PhoneNumber })
+                .IsUnique();
+
+
             modelBuilder.Entity<Conversation>()
                 .HasIndex(c => new { c.UserId, c.ContactId })
                 .IsUnique();
