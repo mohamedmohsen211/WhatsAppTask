@@ -20,10 +20,10 @@ namespace WhatsAppTask.BLL.Services
             string? name,
             string? imageUrl)
         {
+            phoneNumber = NormalizePhone(phoneNumber);
             var contact = _context.Contacts
-                .FirstOrDefault(c =>
-                    c.UserId == userId &&
-                    c.PhoneNumber == phoneNumber);
+                .FirstOrDefault(c => c.PhoneNumber == phoneNumber);
+
 
             if (contact == null)
             {
@@ -67,5 +67,16 @@ namespace WhatsAppTask.BLL.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
+        private string NormalizePhone(string phone)
+        {
+            return phone
+                .Replace(" ", "")
+                .Replace("-", "")
+                .Replace("(", "")
+                .Replace(")", "")
+                .Trim()
+                .TrimStart('+');
+        }
+
     }
 }

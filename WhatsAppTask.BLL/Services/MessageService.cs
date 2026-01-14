@@ -1,17 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WhatsAppTask.BLL.Interfaces;
 using WhatsAppTask.DAL.DbContext;
 using WhatsAppTask.DAL.Entities;
 
 public class MessageService : IMessageService
 {
     private readonly AppDbContext _context;
+    private readonly IWhatsAppService _whatsAppService;
+    private readonly IConversationService _conversationService;
 
-    public MessageService(AppDbContext context)
+    public MessageService(
+        AppDbContext context,
+        IWhatsAppService whatsAppService,
+        IConversationService conversationService)
     {
         _context = context;
+        _whatsAppService = whatsAppService;
+        _conversationService = conversationService;
     }
 
-    public Message SendMessage(int userId, string phoneNumber, string content)
+    public async Task<Message> SendMessageAsync(
+    int userId,
+    string phoneNumber,
+    string content)
     {
         var conversation = _context.Conversations
             .Include(c => c.Contact)
@@ -26,14 +37,45 @@ public class MessageService : IMessageService
         {
             ConversationId = conversation.Id,
             Content = content,
-            IsIncoming = false
+            IsIncoming = false,
+            Status = MessageStatus.Pending,
+            CreatedAt = DateTime.UtcNow
         };
 
         _context.Messages.Add(message);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _whatsAppService.SendTextMessageAsync(phoneNumber, content);
+            message.Status = MessageStatus.Sent;
+        }
+        catch (Exception ex)
+        {
+            message.Status = MessageStatus.Failed;
+            message.FailureReason = ex.Message;
+        }
+
+        await _context.SaveChangesAsync();
 
         return message;
     }
+    public async Task SaveIncomingMessageAsync(int conversationId, string content)
+    {
+        var message = new Message
+        {
+            ConversationId = conversationId,
+            Content = content,
+            IsIncoming = true,
+            Status = MessageStatus.Sent,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Messages.Add(message);
+        await _context.SaveChangesAsync();
+    }
+
+
 
     public List<Message> GetConversationMessages(int userId, int conversationId)
     {

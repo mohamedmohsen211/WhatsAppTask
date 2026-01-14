@@ -80,6 +80,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddHttpClient<IWhatsAppService, WhatsAppService>();
 
 var app = builder.Build();
 

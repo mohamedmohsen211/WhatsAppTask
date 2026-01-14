@@ -13,5 +13,8 @@ namespace WhatsAppTask.DAL.Entities
         public bool IsIncoming { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public MessageStatus Status { get; set; } = MessageStatus.Pending;
+        public string? FailureReason { get; set; }
+
     }
 }

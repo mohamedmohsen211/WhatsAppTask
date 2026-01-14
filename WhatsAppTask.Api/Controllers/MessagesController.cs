@@ -19,7 +19,7 @@ namespace WhatsAppTask.Api.Controllers
         }
 
         [HttpPost("send")]
-        public IActionResult SendMessage(SendMessageRequestDto request)
+        public async Task<IActionResult> SendMessage(SendMessageRequestDto request)
         {
             if (string.IsNullOrWhiteSpace(request.PhoneNumber))
                 return BadRequest("Phone number is required");
@@ -27,28 +27,25 @@ namespace WhatsAppTask.Api.Controllers
             if (string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest("Message content is required");
 
+            if (request.Content.Length > 4096)
+                return BadRequest("Message too long");
+
             var userId = GetUserId();
 
-            try
-            {
-                var message = _messageService.SendMessage(
-                    userId,
-                    request.PhoneNumber,
-                    request.Content
-                );
+            var message = await _messageService.SendMessageAsync(
+                userId,
+                request.PhoneNumber,
+                request.Content
+            );
 
-                return Ok(new MessageResponseDto
-                {
-                    Id = message.Id,
-                    Content = message.Content,
-                    IsIncoming = message.IsIncoming,
-                    CreatedAt = message.CreatedAt
-                });
-            }
-            catch (Exception ex)
+            return Ok(new
             {
-                return BadRequest(ex.Message);
-            }
+                message.Id,
+                message.Content,
+                message.Status,
+                message.CreatedAt,
+                message.ConversationId
+            });
         }
 
         [HttpGet("conversation/{conversationId}")]
@@ -61,23 +58,23 @@ namespace WhatsAppTask.Api.Controllers
                 conversationId
             );
 
-            return Ok(messages.Select(m => new MessageResponseDto
+            return Ok(messages.Select(m => new
             {
-                Id = m.Id,
-                Content = m.Content,
-                IsIncoming = m.IsIncoming,
-                CreatedAt = m.CreatedAt
+                m.Id,
+                m.Content,
+                m.IsIncoming,
+                m.Status,
+                m.CreatedAt
             }));
         }
 
         private int GetUserId()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim == null)
+                throw new UnauthorizedAccessException();
 
-            if (userIdClaim == null)
-                throw new Exception("User not authorized");
-
-            return int.Parse(userIdClaim.Value);
+            return int.Parse(claim.Value);
         }
     }
 }
