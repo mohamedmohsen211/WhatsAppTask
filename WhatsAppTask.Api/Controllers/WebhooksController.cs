@@ -22,7 +22,7 @@ public class WebhooksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> ReceiveMessage([FromBody] WebhookMessageDto request)
     {
-        var userId = 1
+        var userId = 1;
 
         var conversation = _conversationService.GetOrCreateByPhone(
             userId,

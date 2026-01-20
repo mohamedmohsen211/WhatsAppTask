@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Dockerfile.txt" />
+  </Folder>
   <Project Path="WhatsAppTask.Api/WhatsAppTask.Api.csproj" />
   <Project Path="WhatsAppTask.BLL/WhatsAppTask.BLL.csproj" />
   <Project Path="WhatsAppTask.DAL/WhatsAppTask.DAL.csproj" />
