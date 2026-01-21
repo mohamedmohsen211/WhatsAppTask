@@ -7,31 +7,47 @@ public class MessageService : IMessageService
 {
     private readonly AppDbContext _context;
     private readonly IWhatsAppService _whatsAppService;
-    private readonly IConversationService _conversationService;
 
     public MessageService(
         AppDbContext context,
-        IWhatsAppService whatsAppService,
-        IConversationService conversationService)
+        IWhatsAppService whatsAppService)
     {
         _context = context;
         _whatsAppService = whatsAppService;
-        _conversationService = conversationService;
     }
 
     public async Task<Message> SendMessageAsync(
-    int userId,
-    string phoneNumber,
-    string content)
+        int userId,
+        string phoneNumber,
+        string content)
     {
-        var conversation = _context.Conversations
-            .Include(c => c.Contact)
-            .FirstOrDefault(c =>
+        phoneNumber = NormalizePhone(phoneNumber);
+
+        var contact = await _context.Contacts
+            .FirstOrDefaultAsync(c =>
                 c.UserId == userId &&
-                c.Contact.PhoneNumber == phoneNumber);
+                c.PhoneNumber == phoneNumber);
+
+        if (contact == null)
+            throw new Exception("Contact not found");
+
+        var conversation = await _context.Conversations
+            .FirstOrDefaultAsync(c =>
+                c.UserId == userId &&
+                c.ContactId == contact.Id);
 
         if (conversation == null)
-            throw new Exception("Conversation not found");
+        {
+            conversation = new Conversation
+            {
+                UserId = userId,
+                ContactId = contact.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Conversations.Add(conversation);
+            await _context.SaveChangesAsync();
+        }
 
         var message = new Message
         {
@@ -60,6 +76,7 @@ public class MessageService : IMessageService
 
         return message;
     }
+
     public async Task SaveIncomingMessageAsync(int conversationId, string content)
     {
         var message = new Message
@@ -75,8 +92,6 @@ public class MessageService : IMessageService
         await _context.SaveChangesAsync();
     }
 
-
-
     public List<Message> GetConversationMessages(int userId, int conversationId)
     {
         return _context.Messages
@@ -86,5 +101,16 @@ public class MessageService : IMessageService
                 m.Conversation.UserId == userId)
             .OrderBy(m => m.CreatedAt)
             .ToList();
+    }
+
+    private string NormalizePhone(string phone)
+    {
+        return phone
+            .Replace(" ", "")
+            .Replace("-", "")
+            .Replace("(", "")
+            .Replace(")", "")
+            .Trim()
+            .TrimStart('+');
     }
 }
