@@ -21,9 +21,10 @@ namespace WhatsAppTask.BLL.Services
         {
             phoneNumber = NormalizePhone(phoneNumber);
 
-            var existingContact = _context.Contacts.FirstOrDefault(c =>
-                c.UserId == userId &&
-                c.PhoneNumber == phoneNumber);
+            var existingContact = _context.Contacts
+                .FirstOrDefault(c =>
+                    c.UserId == userId &&
+                    c.PhoneNumber == phoneNumber);
 
             if (existingContact != null)
             {
@@ -33,10 +34,26 @@ namespace WhatsAppTask.BLL.Services
                 if (!string.IsNullOrWhiteSpace(imageUrl))
                     existingContact.ImageUrl = imageUrl;
 
+                var existingConversation = _context.Conversations
+                    .FirstOrDefault(c =>
+                        c.UserId == userId &&
+                        c.ContactId == existingContact.Id);
+
+                if (existingConversation == null)
+                {
+                    var conversation = new Conversation
+                    {
+                        UserId = userId,
+                        ContactId = existingContact.Id,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Conversations.Add(conversation);
+                }
+
                 _context.SaveChanges();
                 return existingContact;
             }
-
 
             var contact = new Contact
             {
@@ -50,18 +67,19 @@ namespace WhatsAppTask.BLL.Services
             _context.Contacts.Add(contact);
             _context.SaveChanges();
 
-            var conversation = new Conversation
+            var newConversation = new Conversation
             {
                 UserId = userId,
                 ContactId = contact.Id,
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Conversations.Add(conversation);
+            _context.Conversations.Add(newConversation);
             _context.SaveChanges();
 
             return contact;
         }
+
 
         private string NormalizePhone(string phone)
         {

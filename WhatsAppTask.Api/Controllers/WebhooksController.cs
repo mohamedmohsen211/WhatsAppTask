@@ -22,22 +22,22 @@ public class WebhooksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> ReceiveMessage([FromBody] WebhookMessageDto request)
     {
-        var userId = 1;
-
-        var conversation = _conversationService.GetOrCreateByPhone(
-            userId,
-            request.From,
-            null,
-            null
-        );
-
-        await _messageService.SaveIncomingMessageAsync(
-            conversation.Id,
-            request.Text
-        );
-
         try
         {
+            var userId = 1;
+
+            var conversation = _conversationService.GetOrCreateByPhone(
+                userId,
+                request.From,
+                null,
+                null
+            );
+
+            await _messageService.SaveIncomingMessageAsync(
+                conversation.Id,
+                request.Text
+            );
+
             await _whatsAppService.SendTextMessageAsync(
                 request.From,
                 "تم استلام رسالتك ✅"
@@ -46,7 +46,6 @@ public class WebhooksController : ControllerBase
         catch (Exception ex)
         {
         }
-
         return Ok();
     }
 }
