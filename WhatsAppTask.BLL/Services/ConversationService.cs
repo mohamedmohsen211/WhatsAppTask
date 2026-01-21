@@ -64,6 +64,28 @@ namespace WhatsAppTask.BLL.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
+        public void DeleteConversation(int userId, int conversationId)
+        {
+            var conversation = _context.Conversations
+                .FirstOrDefault(c => c.Id == conversationId && c.UserId == userId);
+
+            if (conversation == null)
+                throw new Exception("Conversation not found");
+
+            _context.Conversations.Remove(conversation);
+            _context.SaveChanges();
+        }
+
+        public void BulkDelete(int userId, List<int> conversationIds)
+        {
+            var conversations = _context.Conversations
+                .Where(c => c.UserId == userId && conversationIds.Contains(c.Id))
+                .ToList();
+
+            _context.Conversations.RemoveRange(conversations);
+            _context.SaveChanges();
+        }
+
         private string NormalizePhone(string phone)
         {
             return phone

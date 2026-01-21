@@ -12,5 +12,7 @@ namespace WhatsAppTask.BLL.Interfaces
         );
 
         List<Conversation> GetUserConversations(int userId);
+        public void DeleteConversation(int userId, int conversationId);
+        public void BulkDelete(int userId, List<int> conversationIds);
     }
 }

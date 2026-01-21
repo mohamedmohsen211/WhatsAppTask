@@ -21,12 +21,22 @@ namespace WhatsAppTask.BLL.Services
         {
             phoneNumber = NormalizePhone(phoneNumber);
 
-            var exists = _context.Contacts.Any(c =>
+            var existingContact = _context.Contacts.FirstOrDefault(c =>
                 c.UserId == userId &&
                 c.PhoneNumber == phoneNumber);
 
-            if (exists)
-                throw new Exception("Contact already exists");
+            if (existingContact != null)
+            {
+                if (!string.IsNullOrWhiteSpace(name))
+                    existingContact.Name = name;
+
+                if (!string.IsNullOrWhiteSpace(imageUrl))
+                    existingContact.ImageUrl = imageUrl;
+
+                _context.SaveChanges();
+                return existingContact;
+            }
+
 
             var contact = new Contact
             {
