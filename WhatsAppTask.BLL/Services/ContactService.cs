@@ -40,6 +40,16 @@ namespace WhatsAppTask.BLL.Services
             _context.Contacts.Add(contact);
             _context.SaveChanges();
 
+            var conversation = new Conversation
+            {
+                UserId = userId,
+                ContactId = contact.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Conversations.Add(conversation);
+            _context.SaveChanges();
+
             return contact;
         }
 
