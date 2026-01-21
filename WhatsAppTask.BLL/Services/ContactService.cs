@@ -13,13 +13,20 @@ namespace WhatsAppTask.BLL.Services
             _context = context;
         }
 
-        public Contact CreateContact(int userId, string phoneNumber, string? name, string? imageUrl)
+        public Contact CreateContact(
+            int userId,
+            string phoneNumber,
+            string? name,
+            string? imageUrl)
         {
+            phoneNumber = NormalizePhone(phoneNumber);
+
             var exists = _context.Contacts.Any(c =>
+                c.UserId == userId &&
                 c.PhoneNumber == phoneNumber);
 
             if (exists)
-                return null;
+                throw new Exception("Contact already exists");
 
             var contact = new Contact
             {
@@ -35,6 +42,18 @@ namespace WhatsAppTask.BLL.Services
 
             return contact;
         }
+
+        private string NormalizePhone(string phone)
+        {
+            return phone
+                .Replace(" ", "")
+                .Replace("-", "")
+                .Replace("(", "")
+                .Replace(")", "")
+                .Trim()
+                .TrimStart('+');
+        }
+
 
         public List<Contact> GetUserContacts(int userId)
         {

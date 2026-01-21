@@ -36,8 +36,8 @@ namespace WhatsAppTask.BLL.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(
-                    int.Parse(_configuration["Jwt:ExpiresInMinutes"]!)
+                expires: DateTime.UtcNow.AddYears(
+                    10
                 ),
                 signingCredentials: creds
             );

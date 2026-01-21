@@ -21,36 +21,32 @@ namespace WhatsAppTask.BLL.Services
             string? imageUrl)
         {
             phoneNumber = NormalizePhone(phoneNumber);
-            var contact = _context.Contacts
-                .FirstOrDefault(c => c.PhoneNumber == phoneNumber);
 
-
-            if (contact == null)
-            {
-                contact = new Contact
-                {
-                    UserId = userId,
-                    PhoneNumber = phoneNumber,
-                    Name = name,
-                    ImageUrl = imageUrl
-                };
-
-                _context.Contacts.Add(contact);
-                _context.SaveChanges();
-            }
-
-            var conversation = _context.Conversations
+            var existingContact = _context.Contacts
                 .FirstOrDefault(c =>
                     c.UserId == userId &&
-                    c.ContactId == contact.Id);
+                    c.PhoneNumber == phoneNumber);
 
-            if (conversation != null)
-                return conversation;
+            if (existingContact != null)
+                throw new Exception("This phone number already exists in your contacts");
 
-            conversation = new Conversation
+            var contact = new Contact
             {
                 UserId = userId,
-                ContactId = contact.Id
+                PhoneNumber = phoneNumber,
+                Name = name,
+                ImageUrl = imageUrl,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Contacts.Add(contact);
+            _context.SaveChanges();
+
+            var conversation = new Conversation
+            {
+                UserId = userId,
+                ContactId = contact.Id,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Conversations.Add(conversation);
@@ -58,6 +54,7 @@ namespace WhatsAppTask.BLL.Services
 
             return conversation;
         }
+
 
         public List<Conversation> GetUserConversations(int userId)
         {

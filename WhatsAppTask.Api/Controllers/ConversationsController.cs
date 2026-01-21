@@ -28,20 +28,28 @@ namespace WhatsAppTask.Api.Controllers
         {
             var userId = GetUserId();
 
-            var conversation = _conversationService.GetOrCreateByPhone(
-                userId,
-                request.PhoneNumber,
-                request.Name,
-                request.ImageUrl
-            );
-
-            return Ok(new
+            try
             {
-                conversation.Id,
-                PhoneNumber = conversation.Contact.PhoneNumber,
-                ContactName = conversation.Contact.Name
-            });
+                var conversation = _conversationService.GetOrCreateByPhone(
+                    userId,
+                    request.PhoneNumber,
+                    request.Name,
+                    request.ImageUrl
+                );
+
+                return Ok(new
+                {
+                    conversation.Id,
+                    PhoneNumber = conversation.Contact.PhoneNumber,
+                    ContactName = conversation.Contact.Name
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
 
         [HttpGet]
         public IActionResult GetMyConversations()
