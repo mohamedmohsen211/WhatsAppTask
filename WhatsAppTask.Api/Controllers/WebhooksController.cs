@@ -24,28 +24,24 @@ public class WebhooksController : ControllerBase
     {
         try
         {
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.From) ||
+                string.IsNullOrWhiteSpace(request.Text))
+                return Ok();
+
             var userId = 1;
 
-            var conversation = _conversationService.GetOrCreateByPhone(
+            await _messageService.SendMessageAsync(
                 userId,
                 request.From,
-                null,
-                null
-            );
-
-            await _messageService.SaveIncomingMessageAsync(
-                conversation.Id,
                 request.Text
             );
-
-            await _whatsAppService.SendTextMessageAsync(
-                request.From,
-                "تم استلام رسالتك ✅"
-            );
         }
-        catch (Exception ex)
+        catch
         {
         }
+
         return Ok();
     }
+
 }
