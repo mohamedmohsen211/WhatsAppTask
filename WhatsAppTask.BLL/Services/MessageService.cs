@@ -29,7 +29,17 @@ public class MessageService : IMessageService
                 c.PhoneNumber == phoneNumber);
 
         if (contact == null)
-            throw new Exception("Contact not found");
+        {
+            contact = new Contact
+            {
+                UserId = userId,
+                PhoneNumber = phoneNumber,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+        }
 
         var conversation = await _context.Conversations
             .FirstOrDefaultAsync(c =>
@@ -76,6 +86,7 @@ public class MessageService : IMessageService
 
         return message;
     }
+
 
     public async Task SaveIncomingMessageAsync(int conversationId, string content)
     {
