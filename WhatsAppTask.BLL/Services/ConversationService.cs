@@ -22,39 +22,47 @@ namespace WhatsAppTask.BLL.Services
         {
             phoneNumber = NormalizePhone(phoneNumber);
 
-            var existingContact = _context.Contacts
+            var contact = _context.Contacts
                 .FirstOrDefault(c =>
                     c.UserId == userId &&
                     c.PhoneNumber == phoneNumber);
 
-            if (existingContact != null)
-                throw new Exception("This phone number already exists in your contacts");
-
-            var contact = new Contact
+            if (contact == null)
             {
-                UserId = userId,
-                PhoneNumber = phoneNumber,
-                Name = name,
-                ImageUrl = imageUrl,
-                CreatedAt = DateTime.UtcNow
-            };
+                contact = new Contact
+                {
+                    UserId = userId,
+                    PhoneNumber = phoneNumber,
+                    Name = name,
+                    ImageUrl = imageUrl,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            _context.Contacts.Add(contact);
-            _context.SaveChanges();
+                _context.Contacts.Add(contact);
+                _context.SaveChanges();
+            }
 
-            var conversation = new Conversation
+            var conversation = _context.Conversations
+                .Include(c => c.Contact)
+                .FirstOrDefault(c =>
+                    c.UserId == userId &&
+                    c.ContactId == contact.Id);
+
+            if (conversation == null)
             {
-                UserId = userId,
-                ContactId = contact.Id,
-                CreatedAt = DateTime.UtcNow
-            };
+                conversation = new Conversation
+                {
+                    UserId = userId,
+                    ContactId = contact.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            _context.Conversations.Add(conversation);
-            _context.SaveChanges();
+                _context.Conversations.Add(conversation);
+                _context.SaveChanges();
+            }
 
             return conversation;
         }
-
 
         public List<Conversation> GetUserConversations(int userId)
         {
@@ -64,6 +72,7 @@ namespace WhatsAppTask.BLL.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
+
         public void DeleteConversation(int userId, int conversationId)
         {
             var conversation = _context.Conversations
@@ -96,6 +105,5 @@ namespace WhatsAppTask.BLL.Services
                 .Trim()
                 .TrimStart('+');
         }
-
     }
 }
