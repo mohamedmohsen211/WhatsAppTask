@@ -13,6 +13,9 @@ namespace WhatsAppTask.DAL.DbContext
         public DbSet<Contact> Contacts => Set<Contact>();
         public DbSet<Conversation> Conversations => Set<Conversation>();
         public DbSet<Message> Messages => Set<Message>();
+        public DbSet<AutoReply> AutoReplies { get; set; }
+        public DbSet<MessageList> MessageLists { get; set; }
+        public DbSet<MessageListItem> MessageListItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
