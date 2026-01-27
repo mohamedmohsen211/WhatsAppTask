@@ -70,6 +70,10 @@ namespace WhatsAppTask.DAL.DbContext
                 .WithMany()
                 .HasForeignKey(i => i.ContactId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MessageListItem>()
+                .HasIndex(i => new { i.MessageListId, i.ContactId })
+                .IsUnique();
         }
     }
 }

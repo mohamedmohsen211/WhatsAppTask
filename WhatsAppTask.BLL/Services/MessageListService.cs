@@ -50,15 +50,20 @@ namespace WhatsAppTask.BLL.Services
 
         public void AddItems(int listId, List<int> contactIds)
         {
-            foreach (var contactId in contactIds)
-            {
-                _context.MessageListItems.Add(new MessageListItem
+            var existingContactIds = _context.MessageListItems
+                .Where(i => i.MessageListId == listId)
+                .Select(i => i.ContactId)
+                .ToHashSet();
+
+            var newItems = contactIds
+                .Where(id => !existingContactIds.Contains(id))
+                .Select(id => new MessageListItem
                 {
                     MessageListId = listId,
-                    ContactId = contactId
+                    ContactId = id
                 });
-            }
 
+            _context.MessageListItems.AddRange(newItems);
             _context.SaveChanges();
         }
         public async Task BulkSendAsync(int userId, int listId)
