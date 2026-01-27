@@ -24,7 +24,17 @@ namespace WhatsAppTask.Api.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_service.GetAll());
+            var admins = _service.GetAll()
+                .Select(u => new AdminResponseDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Role = u.Role,
+                    IsActive = u.IsActive,
+                    CreatedAt = u.CreatedAt
+                });
+
+            return Ok(admins);
         }
 
         [HttpPut("{id}")]
