@@ -1,4 +1,5 @@
-﻿using WhatsAppTask.DAL.DbContext;
+﻿using Microsoft.EntityFrameworkCore;
+using WhatsAppTask.DAL.DbContext;
 
 namespace WhatsAppTask.BLL.Services
 {
@@ -25,6 +26,25 @@ namespace WhatsAppTask.BLL.Services
 
             _context.MessageLists.Add(list);
             _context.SaveChanges();
+            return list;
+        }
+        public List<MessageList> GetAll(int userId)
+        {
+            return _context.MessageLists
+                .Where(l => l.UserId == userId)
+                .OrderByDescending(l => l.CreatedAt)
+                .ToList();
+        }
+        public MessageList GetById(int userId, int listId)
+        {
+            var list = _context.MessageLists
+                .Include(l => l.Items)
+                    .ThenInclude(i => i.Contact)
+                .FirstOrDefault(l => l.Id == listId && l.UserId == userId);
+
+            if (list == null)
+                throw new Exception("Message list not found");
+
             return list;
         }
 

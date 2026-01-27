@@ -23,6 +23,43 @@ namespace WhatsAppTask.Api.Controllers
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             return Ok(_service.Create(userId, dto.Title, dto.Message));
         }
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var lists = _service.GetAll(userId)
+                .Select(l => new
+                {
+                    l.Id,
+                    l.Title,
+                    l.Message,
+                    l.CreatedAt
+                });
+
+            return Ok(lists);
+        }
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var list = _service.GetById(userId, id);
+
+            return Ok(new
+            {
+                list.Id,
+                list.Title,
+                list.Message,
+                list.CreatedAt,
+                Contacts = list.Items.Select(i => new
+                {
+                    i.Contact.Id,
+                    i.Contact.PhoneNumber,
+                    i.Contact.Name
+                })
+            });
+        }
 
         [HttpPost("{id}/items")]
         public IActionResult AddItems(int id, AddListItemsDto dto)

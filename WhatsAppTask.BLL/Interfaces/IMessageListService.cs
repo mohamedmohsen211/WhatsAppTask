@@ -18,5 +18,7 @@
             int userId,
             int listId
         );
+        public List<MessageList> GetAll(int userId);
+        public MessageList GetById(int userId, int listId);
     }
 }

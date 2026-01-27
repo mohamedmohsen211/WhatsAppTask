@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using WhatsAppTask.BLL.Interfaces;
 
 [ApiController]
@@ -23,37 +24,57 @@ public class WebhooksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> ReceiveMessage([FromBody] WebhookMessageDto request)
+    public async Task<IActionResult> ReceiveMessage([FromBody] JsonElement payload)
     {
-        if (request == null ||
-            string.IsNullOrWhiteSpace(request.From) ||
-            string.IsNullOrWhiteSpace(request.Text))
-            return Ok();
-
-        var userId = 1; // لحد ما نربطها صح بعدين
-
-        var conversation = _conversationService.GetOrCreateByPhone(
-            userId,
-            request.From,
-            null,
-            null
-        );
-
-        await _messageService.SaveIncomingMessageAsync(
-            conversation.Id,
-            request.Text
-        );
-
-        var autoReply = _autoReplyService.FindMatch(userId, request.Text);
-
-        if (autoReply != null)
+        try
         {
-            await _whatsAppService.SendTextMessageAsync(
-                request.From,
-                autoReply.Reply
+            var entry = payload.GetProperty("entry")[0];
+            var changes = entry.GetProperty("changes")[0];
+            var value = changes.GetProperty("value");
+
+            if (!value.TryGetProperty("messages", out var messages))
+                return Ok();
+
+            var message = messages[0];
+
+            var from = message.GetProperty("from").GetString();
+            var text = message
+                .GetProperty("text")
+                .GetProperty("body")
+                .GetString();
+
+            if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(text))
+                return Ok();
+
+            var userId = 1;
+
+            var conversation = _conversationService.GetOrCreateByPhone(
+                userId,
+                from,
+                null,
+                null
             );
+
+            await _messageService.SaveIncomingMessageAsync(
+                conversation.Id,
+                text
+            );
+
+            var autoReply = _autoReplyService.FindMatch(userId, text);
+
+            if (autoReply != null)
+            {
+                await _whatsAppService.SendTextMessageAsync(
+                    from,
+                    autoReply.Reply
+                );
+            }
+        }
+        catch (Exception ex)
+        {
         }
 
         return Ok();
     }
+
 }
