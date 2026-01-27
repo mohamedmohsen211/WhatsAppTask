@@ -38,7 +38,7 @@ public class AdminService : IAdminService
     public List<User> GetAll()
     {
         return _context.Users
-            .Where(u => u.Role != null && u.Role == "admin")
+            .Where(u => u.Role != null && u.Role.ToLower() == "admin")
             .ToList();
     }
 
