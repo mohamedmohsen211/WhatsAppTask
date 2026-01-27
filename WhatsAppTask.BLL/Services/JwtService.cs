@@ -23,7 +23,7 @@ namespace WhatsAppTask.BLL.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToLower())
+                new Claim(ClaimTypes.Role, user.Role.ToLower().Trim())
             };
           
             var key = new SymmetricSecurityKey(

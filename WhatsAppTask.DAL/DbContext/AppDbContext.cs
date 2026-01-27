@@ -53,6 +53,23 @@ namespace WhatsAppTask.DAL.DbContext
                 .WithMany()
                 .HasForeignKey(m => m.ConversationId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<MessageList>()
+                .HasOne(m => m.User)
+                .WithMany()
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MessageListItem>()
+                .HasOne(i => i.MessageList)
+                .WithMany(l => l.Items)
+                .HasForeignKey(i => i.MessageListId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MessageListItem>()
+                .HasOne(i => i.Contact)
+                .WithMany()
+                .HasForeignKey(i => i.ContactId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -21,9 +21,10 @@ public class AdminService : IAdminService
 
         var user = new User
         {
+            Username = email.Split('@')[0],
             Email = email,
             PasswordHash = PasswordHasher.Hash(password),
-            Role = "ADMIN",
+            Role = "admin",
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -37,7 +38,7 @@ public class AdminService : IAdminService
     public List<User> GetAll()
     {
         return _context.Users
-            .Where(u => u.Role != null && u.Role.ToLower() == "admin")
+            .Where(u => u.Role != null && u.Role == "admin")
             .ToList();
     }
 

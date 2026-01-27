@@ -81,6 +81,9 @@ builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddHttpClient<IWhatsAppService, WhatsAppService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAutoReplyService, AutoReplyService>();
+builder.Services.AddScoped<MessageListService>();
 
 var app = builder.Build();
 

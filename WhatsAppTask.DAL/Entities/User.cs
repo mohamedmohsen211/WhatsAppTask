@@ -1,21 +1,16 @@
-﻿using System;
-
-namespace WhatsAppTask.DAL.Entities
+﻿public class User
 {
-    public class User
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string Username { get; set; } = null!;
+    public string Username { get; set; } = null!;
 
-        public string Email { get; set; } = null!;
+    public string Email { get; set; } = null!;
 
-        public string PasswordHash { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
-        public string Role { get; set; } = "Admin";
+    public string Role { get; set; } = "admin";
 
-        public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
