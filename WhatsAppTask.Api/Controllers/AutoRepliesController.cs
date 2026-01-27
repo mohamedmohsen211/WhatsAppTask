@@ -5,7 +5,7 @@ using WhatsAppTask.BLL.Interfaces;
 
 namespace WhatsAppTask.Api.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "admin")]
     [ApiController]
     [Route("api/auto-replies")]
     public class AutoRepliesController : ControllerBase

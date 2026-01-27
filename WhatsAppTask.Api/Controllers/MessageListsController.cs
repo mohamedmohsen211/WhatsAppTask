@@ -5,7 +5,7 @@ using WhatsAppTask.BLL.Services;
 
 namespace WhatsAppTask.Api.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "admin")]
     [ApiController]
     [Route("api/message-lists")]
     public class MessageListsController : ControllerBase

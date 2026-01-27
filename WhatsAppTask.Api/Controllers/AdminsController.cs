@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WhatsAppTask.Api.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "admin")]
     [ApiController]
     [Route("api/admins")]
     public class AdminsController : ControllerBase
