@@ -64,6 +64,25 @@ namespace WhatsAppTask.Api.Controllers
 
             return Ok(contacts);
         }
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var userId = GetUserId();
+
+            var contact = _contactService.GetContactById(userId, id);
+
+            if (contact == null)
+                return NotFound("Contact not found");
+
+            return Ok(new ContactResponseDto
+            {
+                Id = contact.Id,
+                PhoneNumber = contact.PhoneNumber,
+                Name = contact.Name,
+                ImageUrl = contact.ImageUrl,
+                CreatedAt = contact.CreatedAt
+            });
+        }
         [HttpGet("search")]
         public IActionResult Search([FromQuery] string q)
         {

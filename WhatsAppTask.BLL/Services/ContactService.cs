@@ -100,6 +100,13 @@ namespace WhatsAppTask.BLL.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
+        public Contact? GetContactById(int userId, int contactId)
+        {
+            return _context.Contacts
+                .FirstOrDefault(c =>
+                    c.Id == contactId &&
+                    c.UserId == userId);
+        }
         public List<Contact> SearchContacts(int userId, string query)
         {
             query = query.ToLower();
