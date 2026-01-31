@@ -118,6 +118,7 @@ public class MessageService : IMessageService
     {
         return _context.Conversations
             .Where(c => c.UserId == userId)
+            .Where(c => _context.Messages.Any(m => m.ConversationId == c.Id))
             .Select(c => new ConversationWithLastMessageDto
             {
                 ConversationId = c.Id,
@@ -135,9 +136,7 @@ public class MessageService : IMessageService
                     })
                     .FirstOrDefault()
             })
-            .OrderByDescending(x => x.LastMessage != null
-                ? x.LastMessage.CreatedAt
-                : DateTime.MinValue)
+            .OrderByDescending(x => x.LastMessage.CreatedAt)
             .ToList();
     }
     private string NormalizePhone(string phone)
