@@ -2,6 +2,7 @@
 using WhatsAppTask.BLL.Interfaces;
 using WhatsAppTask.DAL.DbContext;
 using WhatsAppTask.DAL.Entities;
+using WhatsAppTask.DTO.Enums;
 
 public class MessageService : IMessageService
 {
@@ -113,7 +114,32 @@ public class MessageService : IMessageService
             .OrderBy(m => m.CreatedAt)
             .ToList();
     }
+    public List<ConversationWithLastMessageDto> GetConversationsWithLastMessage(int userId)
+    {
+        return _context.Conversations
+            .Where(c => c.UserId == userId)
+            .Select(c => new ConversationWithLastMessageDto
+            {
+                ConversationId = c.Id,
+                ContactId = c.ContactId,
 
+                LastMessage = _context.Messages
+                    .Where(m => m.ConversationId == c.Id)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => new LastMessageDto
+                    {
+                        Content = m.Content,
+                        IsIncoming = m.IsIncoming,
+                        Status = (MessageStatusDto)m.Status,
+                        CreatedAt = m.CreatedAt
+                    })
+                    .FirstOrDefault()
+            })
+            .OrderByDescending(x => x.LastMessage != null
+                ? x.LastMessage.CreatedAt
+                : DateTime.MinValue)
+            .ToList();
+    }
     private string NormalizePhone(string phone)
     {
         return phone

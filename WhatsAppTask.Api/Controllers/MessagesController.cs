@@ -67,7 +67,12 @@ namespace WhatsAppTask.Api.Controllers
                 m.CreatedAt
             }));
         }
-
+        [HttpGet("conversations")]
+        public IActionResult GetConversations()
+        {
+            var userId = GetUserId();
+            return Ok(_messageService.GetConversationsWithLastMessage(userId));
+        }
         private int GetUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier);
