@@ -67,7 +67,7 @@ namespace WhatsAppTask.Api.Controllers
                 m.CreatedAt
             }));
         }
-        [HttpGet("conversations")]
+        [HttpGet("conversations-last-message")]
         public IActionResult GetConversations()
         {
             var userId = GetUserId();
