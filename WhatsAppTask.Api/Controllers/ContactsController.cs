@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using WhatsAppTask.BLL.Interfaces;
 using WhatsAppTask.DTO;
 
@@ -27,6 +28,14 @@ namespace WhatsAppTask.Api.Controllers
         public IActionResult Create(CreateContactRequestDto request)
         {
             var userId = GetUserId();
+
+            if (!IsValidPhone(request.PhoneNumber))
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid phone number format. Use country code, digits only."
+                });
+            }
 
             var existing = _contactService
                 .GetUserContacts(userId)
@@ -118,6 +127,10 @@ namespace WhatsAppTask.Api.Controllers
                 Name = c.Name,
                 ImageUrl = c.ImageUrl
             }));
+        }
+        private bool IsValidPhone(string phone)
+        {
+            return Regex.IsMatch(phone, @"^\+?\d{10,15}$");
         }
 
     }
