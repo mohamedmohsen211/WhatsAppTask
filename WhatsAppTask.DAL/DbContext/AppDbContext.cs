@@ -28,7 +28,7 @@ namespace WhatsAppTask.DAL.DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Contact>()
-                .HasIndex(c => new {c.PhoneNumber })
+                .HasIndex(c => new { c.UserId, c.PhoneNumber })
                 .IsUnique();
 
 
@@ -50,7 +50,7 @@ namespace WhatsAppTask.DAL.DbContext
 
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Conversation)
-                .WithMany()
+                .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ConversationId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<MessageList>()
