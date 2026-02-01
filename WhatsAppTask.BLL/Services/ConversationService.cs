@@ -68,6 +68,7 @@ namespace WhatsAppTask.BLL.Services
         {
             return _context.Conversations
                 .Include(c => c.Contact)
+                .Include(c => c.Messages)
                 .Where(c => c.UserId == userId)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();

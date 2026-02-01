@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WhatsAppTask.BLL.Interfaces;
 using WhatsAppTask.DTO;
+using WhatsAppTask.DTO.Enums;
 
 namespace WhatsAppTask.Api.Controllers
 {
@@ -56,14 +57,27 @@ namespace WhatsAppTask.Api.Controllers
         {
             var userId = GetUserId();
 
-            var conversations = _conversationService.GetUserConversations(userId)
+            var conversations = _conversationService
+                .GetUserConversations(userId)
                 .Select(c => new ConversationResponseDto
                 {
                     Id = c.Id,
                     ContactId = c.ContactId,
                     PhoneNumber = c.Contact.PhoneNumber,
                     ContactName = c.Contact.Name,
-                    CreatedAt = c.CreatedAt
+                    ImageUrl = c.Contact.ImageUrl,
+                    CreatedAt = c.CreatedAt,
+
+                    LastMessage = c.Messages
+                        .OrderByDescending(m => m.CreatedAt)
+                        .Select(m => new LastMessageDto
+                        {
+                            Content = m.Content,
+                            IsIncoming = m.IsIncoming,
+                            Status = (MessageStatusDto)m.Status,
+                            CreatedAt = m.CreatedAt
+                        })
+                        .FirstOrDefault()
                 });
 
             return Ok(conversations);

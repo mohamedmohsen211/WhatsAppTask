@@ -11,7 +11,9 @@ namespace WhatsAppTask.DAL.Entities
 
         public int ContactId { get; set; }
         public Contact Contact { get; set; } = null!;
+        public List<Message> Messages { get; set; } = new();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     }
 }

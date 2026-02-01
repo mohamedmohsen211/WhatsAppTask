@@ -28,14 +28,32 @@ namespace WhatsAppTask.Api.Controllers
         {
             var userId = GetUserId();
 
+            var existing = _contactService
+                .GetUserContacts(userId)
+                .Any(c => c.PhoneNumber ==
+                    request.PhoneNumber
+                        .Replace(" ", "")
+                        .Replace("-", "")
+                        .Replace("(", "")
+                        .Replace(")", "")
+                        .Trim()
+                        .TrimStart('+')
+                );
+
+            if (existing)
+            {
+                return Conflict(new
+                {
+                    message = "Phone number already exists"
+                });
+            }
+
             var contact = _contactService.CreateContact(
                 userId,
                 request.PhoneNumber,
                 request.Name,
                 request.ImageUrl
             );
-            if (contact == null)
-                return BadRequest("Contact already exists");
 
             return Ok(new ContactResponseDto
             {
