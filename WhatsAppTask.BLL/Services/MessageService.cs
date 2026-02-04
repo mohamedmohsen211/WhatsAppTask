@@ -139,6 +139,21 @@ public class MessageService : IMessageService
             .OrderByDescending(x => x.LastMessage.CreatedAt)
             .ToList();
     }
+    public void DeleteMessages(int userId, List<int> messageIds)
+    {
+        var messages = _context.Messages
+            .Include(m => m.Conversation)
+            .Where(m =>
+                messageIds.Contains(m.Id) &&
+                m.Conversation.UserId == userId)
+            .ToList();
+
+        if (!messages.Any())
+            throw new Exception("Messages not found");
+
+        _context.Messages.RemoveRange(messages);
+        _context.SaveChanges();
+    }
     private string NormalizePhone(string phone)
     {
         return phone

@@ -1,6 +1,9 @@
-﻿using WhatsAppTask.BLL.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
+using WhatsAppTask.BLL.Interfaces;
 using WhatsAppTask.DAL.DbContext;
 using WhatsAppTask.DAL.Entities;
+using WhatsAppTask.DTO;
 
 namespace WhatsAppTask.BLL.Services
 {
@@ -123,5 +126,68 @@ namespace WhatsAppTask.BLL.Services
                 .ToList();
         }
 
-    }
+        public BulkCreateContactsResultDto BulkCreateContacts(
+            int userId,
+            List<BulkContactItemDto> contacts)
+            {
+                var result = new BulkCreateContactsResultDto();
+
+                var existingPhones = _context.Contacts
+                    .Where(c => c.UserId == userId)
+                    .Select(c => c.PhoneNumber)
+                    .ToHashSet();
+
+                foreach (var item in contacts)
+                {
+                    if (!Regex.IsMatch(item.PhoneNumber, @"^\+?\d{10,15}$"))
+                    {
+                        result.Invalid.Add(item.PhoneNumber);
+                        continue;
+                    }
+
+                    var normalized = item.PhoneNumber.Trim().TrimStart('+');
+
+                    if (existingPhones.Contains(normalized))
+                    {
+                        result.Duplicates.Add(item.PhoneNumber);
+                        continue;
+                    }
+
+                    var contact = new Contact
+                    {
+                        UserId = userId,
+                        PhoneNumber = normalized,
+                        Name = item.Name,
+                        ImageUrl = item.ImageUrl,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Contacts.Add(contact);
+                    _context.SaveChanges();
+
+                    var conversation = new Conversation
+                    {
+                        UserId = userId,
+                        ContactId = contact.Id,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Conversations.Add(conversation);
+                    _context.SaveChanges();
+
+                    existingPhones.Add(normalized);
+
+                    result.Created.Add(new ContactResponseDto
+                    {
+                        Id = contact.Id,
+                        PhoneNumber = contact.PhoneNumber,
+                        Name = contact.Name,
+                        ImageUrl = contact.ImageUrl,
+                        CreatedAt = contact.CreatedAt
+                    });
+                }
+
+                return result;
+            }
+}
 }

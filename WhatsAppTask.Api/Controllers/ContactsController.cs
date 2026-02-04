@@ -133,5 +133,22 @@ namespace WhatsAppTask.Api.Controllers
             return Regex.IsMatch(phone, @"^\+?\d{10,15}$");
         }
 
+        [HttpPost("bulk")]
+        public IActionResult BulkCreate(BulkCreateContactsDto request)
+        {
+            var userId = GetUserId();
+
+            if (request.Contacts == null || !request.Contacts.Any())
+            {
+                return BadRequest("Contacts array is required");
+            }
+
+            var result = _contactService.BulkCreateContacts(
+                userId,
+                request.Contacts
+            );
+
+            return Ok(result);
+        }
     }
 }

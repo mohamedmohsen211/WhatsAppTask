@@ -81,5 +81,14 @@ namespace WhatsAppTask.Api.Controllers
 
             return int.Parse(claim.Value);
         }
+        [HttpDelete("bulk")]
+        public IActionResult BulkDelete(BulkDeleteMessagesDto dto)
+        {
+            var userId = GetUserId();
+
+            _messageService.DeleteMessages(userId, dto.MessageIds);
+
+            return NoContent();
+        }
     }
 }
