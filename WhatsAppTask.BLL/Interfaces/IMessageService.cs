@@ -8,5 +8,6 @@ public interface IMessageService
     List<ConversationWithLastMessageDto> GetConversationsWithLastMessage(int userId);
     Task SaveIncomingMessageAsync(int conversationId, string content);
     void DeleteMessages(int userId, List<int> messageIds);
+    Task<Message> SendMessageWithAttachmentAsync(int userId,string phoneNumber,string attachmentUrl,MessageAttachmentType attachmentType);
 
 }

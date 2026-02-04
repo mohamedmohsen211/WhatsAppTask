@@ -154,6 +154,68 @@ public class MessageService : IMessageService
         _context.Messages.RemoveRange(messages);
         _context.SaveChanges();
     }
+    public async Task<Message> SendMessageWithAttachmentAsync(
+    int userId,
+    string phoneNumber,
+    string attachmentUrl,
+    MessageAttachmentType attachmentType)
+    {
+        phoneNumber = NormalizePhone(phoneNumber);
+
+        var contact = await _context.Contacts
+            .FirstOrDefaultAsync(c =>
+                c.UserId == userId &&
+                c.PhoneNumber == phoneNumber);
+
+        if (contact == null)
+        {
+            contact = new Contact
+            {
+                UserId = userId,
+                PhoneNumber = phoneNumber,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+        }
+
+        var conversation = await _context.Conversations
+            .FirstOrDefaultAsync(c =>
+                c.UserId == userId &&
+                c.ContactId == contact.Id);
+
+        if (conversation == null)
+        {
+            conversation = new Conversation
+            {
+                UserId = userId,
+                ContactId = contact.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Conversations.Add(conversation);
+            await _context.SaveChangesAsync();
+        }
+
+        var message = new Message
+        {
+            ConversationId = conversation.Id,
+            IsIncoming = false,
+            AttachmentUrl = attachmentUrl,
+            AttachmentType = attachmentType,
+            Status = MessageStatus.Pending,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Messages.Add(message);
+        await _context.SaveChangesAsync();
+
+        message.Status = MessageStatus.Sent;
+        await _context.SaveChangesAsync();
+
+        return message;
+    }
     private string NormalizePhone(string phone)
     {
         return phone

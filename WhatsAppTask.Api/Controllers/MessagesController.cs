@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WhatsAppTask.BLL.Interfaces;
+using WhatsAppTask.DAL.Entities;
 using WhatsAppTask.DTO;
 
 namespace WhatsAppTask.Api.Controllers
@@ -45,6 +46,54 @@ namespace WhatsAppTask.Api.Controllers
                 message.Status,
                 message.CreatedAt,
                 message.ConversationId
+            });
+        }
+        [HttpPost("send-file")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> SendFile(
+    [FromForm] string phoneNumber,
+    [FromForm] IFormFile file)
+        {
+            var userId = GetUserId();
+
+            if (file == null || file.Length == 0)
+                return BadRequest("File is required");
+
+            var ext = Path.GetExtension(file.FileName).ToLower();
+
+            MessageAttachmentType type;
+
+            if (ext == ".jpg" || ext == ".jpeg" || ext == ".png")
+                type = MessageAttachmentType.Image;
+            else if (ext == ".pdf")
+                type = MessageAttachmentType.Pdf;
+            else
+                return BadRequest("Only images or PDF files are allowed");
+
+            var folder = Path.Combine("wwwroot", "messages");
+            Directory.CreateDirectory(folder);
+
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var path = Path.Combine(folder, fileName);
+
+            using var stream = new FileStream(path, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            var fileUrl = $"/messages/{fileName}";
+
+            var message = await _messageService.SendMessageWithAttachmentAsync(
+                userId,
+                phoneNumber,
+                fileUrl,
+                type
+            );
+
+            return Ok(new
+            {
+                message.Id,
+                message.AttachmentUrl,
+                message.AttachmentType,
+                message.CreatedAt
             });
         }
 
