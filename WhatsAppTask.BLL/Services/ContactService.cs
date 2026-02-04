@@ -186,8 +186,28 @@ namespace WhatsAppTask.BLL.Services
                         CreatedAt = contact.CreatedAt
                     });
                 }
-
                 return result;
             }
-}
+            public Contact UpdateContact(
+                int userId,
+                int contactId,
+                string? name,
+                string? imageUrl)
+                    {
+                        var contact = _context.Contacts
+                            .FirstOrDefault(c => c.Id == contactId && c.UserId == userId);
+
+                        if (contact == null)
+                            throw new Exception("Contact not found");
+
+                        if (!string.IsNullOrWhiteSpace(name))
+                            contact.Name = name;
+
+                        if (!string.IsNullOrWhiteSpace(imageUrl))
+                            contact.ImageUrl = imageUrl;
+
+                        _context.SaveChanges();
+                        return contact;
+                    }
+    }
 }
