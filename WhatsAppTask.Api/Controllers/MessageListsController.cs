@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WhatsAppTask.BLL.Services;
+using WhatsAppTask.DTO;
 
 namespace WhatsAppTask.Api.Controllers
 {
@@ -75,6 +76,28 @@ namespace WhatsAppTask.Api.Controllers
             await _service.BulkSendAsync(userId, id);
 
             return Ok(new { message = "Messages sent successfully" });
+        }
+        [HttpPost("create-send-now")]
+        public async Task<IActionResult> CreateAndSend(SendMessageListNowDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            if (dto.ContactIds == null || !dto.ContactIds.Any())
+                return BadRequest("ContactIds are required");
+
+            var list = await _service.CreateAndSendAsync(
+                userId,
+                dto.Title,
+                dto.Message,
+                dto.ContactIds
+            );
+
+            return Ok(new
+            {
+                list.Id,
+                list.Title,
+                SentTo = dto.ContactIds.Count
+            });
         }
     }
 }

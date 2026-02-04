@@ -88,6 +88,32 @@ namespace WhatsAppTask.BLL.Services
                 );
             }
         }
+        public async Task<MessageList> CreateAndSendAsync(int userId,string title,string message,List<int> contactIds)
+        {
+            var list = new MessageList
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.MessageLists.Add(list);
+            await _context.SaveChangesAsync();
+
+            var items = contactIds.Select(id => new MessageListItem
+            {
+                MessageListId = list.Id,
+                ContactId = id
+            });
+
+            _context.MessageListItems.AddRange(items);
+            await _context.SaveChangesAsync();
+
+            await BulkSendAsync(userId, list.Id);
+
+            return list;
+        }
     }
 
 }
