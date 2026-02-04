@@ -11,5 +11,6 @@ namespace WhatsAppTask.BLL.Interfaces
         Contact? GetContactById(int userId, int contactId);
         BulkCreateContactsResultDto BulkCreateContacts(int userId,List<BulkContactItemDto> contacts);
         Contact UpdateContact(int userId, int contactId, string? name, string? imageUrl);
+        void DeleteContact(int userId, int contactId);
     }
 }

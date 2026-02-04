@@ -46,13 +46,14 @@ namespace WhatsAppTask.DAL.DbContext
                 .HasOne(c => c.Contact)
                 .WithOne(c => c.Conversation)
                 .HasForeignKey<Conversation>(c => c.ContactId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Conversation)
                 .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ConversationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<MessageList>()
                 .HasOne(m => m.User)
                 .WithMany()

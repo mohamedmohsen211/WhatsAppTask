@@ -209,5 +209,16 @@ namespace WhatsAppTask.BLL.Services
                         _context.SaveChanges();
                         return contact;
                     }
+        public void DeleteContact(int userId, int contactId)
+        {
+            var contact = _context.Contacts
+                .FirstOrDefault(c => c.Id == contactId && c.UserId == userId);
+
+            if (contact == null)
+                throw new Exception("Contact not found");
+
+            _context.Contacts.Remove(contact);
+            _context.SaveChanges();
+        }
     }
 }

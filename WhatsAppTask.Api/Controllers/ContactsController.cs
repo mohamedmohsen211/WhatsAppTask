@@ -256,5 +256,20 @@ namespace WhatsAppTask.Api.Controllers
 
             return Ok(result);
         }
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var userId = GetUserId();
+
+            try
+            {
+                _contactService.DeleteContact(userId, id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }
