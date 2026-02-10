@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\WhatsAppTask.DAL\WhatsAppTask.DAL.csproj" />
+	</ItemGroup>
+	
 </Project>

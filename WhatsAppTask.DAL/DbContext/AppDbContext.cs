@@ -16,6 +16,8 @@ namespace WhatsAppTask.DAL.DbContext
         public DbSet<AutoReply> AutoReplies { get; set; }
         public DbSet<MessageList> MessageLists { get; set; }
         public DbSet<MessageListItem> MessageListItems { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,6 +77,12 @@ namespace WhatsAppTask.DAL.DbContext
             modelBuilder.Entity<MessageListItem>()
                 .HasIndex(i => new { i.MessageListId, i.ContactId })
                 .IsUnique();
+
+            modelBuilder.Entity<Menu>()
+                .HasMany(m => m.Items)
+                .WithOne(i => i.Menu)
+                .HasForeignKey(i => i.MenuId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
