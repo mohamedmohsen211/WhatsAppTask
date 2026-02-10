@@ -10,7 +10,7 @@ namespace WhatsAppTask.BLL.Interfaces
         List<Contact> SearchContacts(int userId, string query);
         Contact? GetContactById(int userId, int contactId);
         BulkCreateContactsResultDto BulkCreateContacts(int userId,List<BulkContactItemDto> contacts);
-        Contact UpdateContact(int userId, int contactId, string? name, string? imageUrl);
+        Contact UpdateContact(int userId, int contactId, string? name, string? imageUrl, string? imageUrl1);
         void DeleteContact(int userId, int contactId);
     }
 }

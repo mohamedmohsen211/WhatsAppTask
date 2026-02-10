@@ -132,6 +132,7 @@ namespace WhatsAppTask.Api.Controllers
                     userId,
                     id,
                     dto.Name,
+                    dto.PhoneNumber,
                     dto.ImageUrl
                 );
 
@@ -146,7 +147,7 @@ namespace WhatsAppTask.Api.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return Conflict(new { message = ex.Message });
             }
         }
         [HttpPut("{id}/image")]
@@ -165,19 +166,27 @@ namespace WhatsAppTask.Api.Controllers
             await image.CopyToAsync(stream);
 
             var imageUrl = $"/contacts/{fileName}";
-
-            var contact = _contactService.UpdateContact(
-                userId,
-                id,
-                null,
-                imageUrl
-            );
-
-            return Ok(new
+            try
             {
-                contact.Id,
-                contact.ImageUrl
-            });
+
+                var contact = _contactService.UpdateContact(
+                    userId,
+                    id,
+                    null,
+                    null,
+                    imageUrl
+                );
+
+                return Ok(new
+                {
+                    contact.Id,
+                    contact.ImageUrl
+                });
+            }
+            catch (Exception ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpGet]

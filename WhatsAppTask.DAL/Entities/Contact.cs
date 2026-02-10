@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
-
-namespace WhatsAppTask.DAL.Entities
+﻿namespace WhatsAppTask.DAL.Entities
 {
     public class Contact
     {

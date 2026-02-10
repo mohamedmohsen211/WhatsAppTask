@@ -192,23 +192,38 @@ namespace WhatsAppTask.BLL.Services
                 int userId,
                 int contactId,
                 string? name,
+                string? phoneNumber,
                 string? imageUrl)
                     {
-                        var contact = _context.Contacts
-                            .FirstOrDefault(c => c.Id == contactId && c.UserId == userId);
+            var contact = _context.Contacts.FirstOrDefault(c => c.Id == contactId && c.UserId == userId);
 
-                        if (contact == null)
-                            throw new Exception("Contact not found");
+            if (contact == null)
+                throw new Exception("Contact not found");
 
-                        if (!string.IsNullOrWhiteSpace(name))
-                            contact.Name = name;
+            if (!string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                var normalized = NormalizePhone(phoneNumber);
 
-                        if (!string.IsNullOrWhiteSpace(imageUrl))
-                            contact.ImageUrl = imageUrl;
+                var exists = _context.Contacts.Any(c =>
+                    c.UserId == userId &&
+                    c.PhoneNumber == normalized &&
+                    c.Id != contactId);
 
-                        _context.SaveChanges();
-                        return contact;
-                    }
+                if (exists)
+                    throw new Exception("Phone number already exists");
+
+                contact.PhoneNumber = normalized;
+            }
+
+            if (!string.IsNullOrWhiteSpace(name))
+                contact.Name = name;
+
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+                contact.ImageUrl = imageUrl;
+
+            _context.SaveChanges();
+            return contact;
+        }
         public void DeleteContact(int userId, int contactId)
         {
             var contact = _context.Contacts
